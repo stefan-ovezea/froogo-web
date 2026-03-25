@@ -18,8 +18,8 @@ export function NavigationShell() {
 
   if (isDesktop) {
     return (
-      <aside className="fixed left-0 top-0 bottom-0 w-64 border-r border-slate-200 bg-surface dark:border-slate-800 dark:bg-slate-950 z-50 py-8 px-4 flex flex-col">
-        <div className="text-3xl font-bold text-primary mb-12 px-4 shadow-ambient">
+      <aside className="fixed left-0 top-0 bottom-0 w-64 border-r border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950 z-50 py-8 px-4 flex flex-col">
+        <div className="text-3xl font-bold text-primary mb-12 px-4">
           Froogo
         </div>
         <nav className="flex flex-col gap-2">
