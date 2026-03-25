@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Mail, Lock, ShoppingBag, Eye, EyeOff, LockOutline } from 'lucide-react';
+import { useState } from "react";
+import Link from "next/link";
+import { Mail, Lock, ShoppingBag, Eye, EyeOff } from "lucide-react";
 
 export default function SignupPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -15,7 +15,7 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert('Parolele nu se potrivesc');
+      alert("Parolele nu se potrivesc");
       return;
     }
     setIsLoading(true);
@@ -116,7 +116,7 @@ export default function SignupPage() {
               {isLoading ? (
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : (
-                'Înregistrare'
+                "Înregistrare"
               )}
             </button>
           </div>
@@ -145,7 +145,7 @@ export default function SignupPage() {
           {/* Sign In Link */}
           <div className="text-center">
             <p className="text-sm text-slate-500">
-              Ai deja cont?{' '}
+              Ai deja cont?{" "}
               <Link
                 href="/login"
                 className="font-bold text-primary hover:underline"
