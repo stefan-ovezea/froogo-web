@@ -96,7 +96,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col pb-8">
+    <div className="flex min-h-screen w-full min-w-0 overflow-x-hidden flex-col pb-8">
       {/* Header with Search */}
       <header className="sticky top-0 z-20 bg-surface/90 pb-4 pt-4 backdrop-blur-xl">
         <div className="flex items-center gap-3 px-4 pb-2">

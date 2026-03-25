@@ -30,14 +30,17 @@ export function ProductCard({ product, storeName, onTap }: ProductCardProps) {
       className="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl bg-surface-container-lowest transition-all duration-300 lg:hover:shadow-ambient active:scale-[0.98]"
     >
       {/* Product Image Container */}
-      <div className="relative aspect-[4/5] w-full bg-surface-container-lowest p-2">
+      <div className="relative aspect-square w-full bg-surface-container-lowest p-2">
         {product.imageUrl ? (
-          <img
-            src={product.imageUrl}
-            alt={product.title}
-            className="h-full w-full rounded-xl object-contain transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-          />
+          <div className="relative h-full w-full overflow-hidden rounded-xl">
+            <Image
+              src={product.imageUrl}
+              alt={product.title}
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
+              className="object-contain transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
         ) : (
           <div className="flex h-full w-full rounded-xl items-center justify-center bg-surface-container-low">
             <ShoppingCart className="text-secondary" size={40} />

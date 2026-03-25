@@ -143,7 +143,7 @@ export default function HomePage() {
 
             {/* Desktop Filters (only visible when typing or filtering) */}
             {isFiltering && (
-              <div className="flex flex-col gap-2 mt-2">
+              <div className="flex flex-col gap-2 mt-2 w-full min-w-0">
                 {storeNames.length > 0 && (
                   <FilterChips
                     options={storeNames}
