@@ -35,7 +35,7 @@ export function ProductCard({ product, storeName, onTap }: ProductCardProps) {
           <div className="relative h-full w-full overflow-hidden rounded-xl">
             <Image
               src={product.imageUrl}
-              alt={product.title}
+              alt={product.title || "missing-image"}
               fill
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
               className="object-contain transition-transform duration-300 group-hover:scale-105"

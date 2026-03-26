@@ -63,7 +63,7 @@ export default function ShoppingListPage() {
 
   if (watchlist.length === 0) {
     return (
-      <div className="flex h-[70vh] flex-col items-center justify-center text-center p-4 bg-surface">
+      <div className="flex h-[70vh] flex-col items-center justify-center text-center p-4 dark:bg-slate-950">
         <ShoppingCart
           size={80}
           className="mb-6 text-outline-variant opacity-50"
@@ -81,7 +81,7 @@ export default function ShoppingListPage() {
   return (
     <div className="flex flex-col pb-8 min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between bg-surface/90 px-6 py-6 backdrop-blur-xl">
+      <header className="sticky top-0 z-10 flex items-center justify-between bg-surface/90 px-6 py-6 backdrop-blur-xl dark:bg-slate-950">
         <h1 className="text-[1.75rem] font-bold font-display text-on-surface">
           Lista ta
         </h1>
