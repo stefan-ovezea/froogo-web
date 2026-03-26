@@ -20,6 +20,23 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Froogo - Cele mai bune oferte",
   description: "Cele mai bune oferte la un click distanță",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Froogo",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport = {
+  themeColor: "#1c64f2",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

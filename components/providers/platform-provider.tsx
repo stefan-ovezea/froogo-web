@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useSyncExternalStore } from 'react';
 
 type PlatformContextType = {
   isDesktop: boolean;
@@ -8,29 +8,26 @@ type PlatformContextType = {
 
 const PlatformContext = createContext<PlatformContextType>({ isDesktop: false });
 
+const subscribe = (callback: () => void) => {
+  const mql = window.matchMedia('(min-width: 1024px)');
+  
+  if (mql.addEventListener) {
+    mql.addEventListener('change', callback);
+    return () => mql.removeEventListener('change', callback);
+  } else {
+    mql.addListener(callback);
+    return () => mql.removeListener(callback);
+  }
+};
+
+const getSnapshot = () => {
+  return window.matchMedia('(min-width: 1024px)').matches;
+};
+
+const getServerSnapshot = () => false;
+
 export const PlatformProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    // Initial check
-    const mql = window.matchMedia('(min-width: 1024px)');
-    
-    // Set initial value
-    setIsDesktop(mql.matches);
-
-    // Event listener for changes
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    
-    // Support modern and legacy event listener
-    if (mql.addEventListener) {
-      mql.addEventListener('change', handler);
-      return () => mql.removeEventListener('change', handler);
-    } else {
-      // Fallback for older browsers
-      mql.addListener(handler);
-      return () => mql.removeListener(handler);
-    }
-  }, []);
+  const isDesktop = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   return (
     <PlatformContext.Provider value={{ isDesktop }}>
