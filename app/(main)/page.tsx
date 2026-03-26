@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Search, X, SearchX } from "lucide-react";
 import { useOffers } from "@/contexts/offers-context";
 import { StoreSectionCard } from "@/components/store-section-card";
@@ -9,12 +9,14 @@ import { FilterChips } from "@/components/ui/filter-chips";
 import { Product } from "@/types/product";
 import { useRouter } from "next/navigation";
 import { usePlatform } from "@/components/providers/platform-provider";
+import { SearchInput } from "@/components/search-input";
 
 export default function HomePage() {
   const { offersData, loading, error } = useOffers();
   const router = useRouter();
   const { isDesktop } = usePlatform();
 
+  // The actual search query that triggers filtering (Debounced inside SearchInput)
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStores, setSelectedStores] = useState<Set<string>>(new Set());
   const [selectedSections, setSelectedSections] = useState<Set<string>>(
@@ -22,6 +24,24 @@ export default function HomePage() {
   );
 
   const maxProductsPreview = 10;
+
+  // Pre-flatten ALL products ONCE when offersData changes
+  const allProductsFlattened = useMemo(() => {
+    if (!offersData) return [];
+    let results: { product: Product; storeName: string; sectionName: string }[] = [];
+    offersData.stores.forEach((store) => {
+      store.sections.forEach((section) => {
+        section.products.forEach((product) => {
+          results.push({ 
+            product, 
+            storeName: store.name, 
+            sectionName: section.name 
+          });
+        });
+      });
+    });
+    return results;
+  }, [offersData]);
 
   // Filtering metadata
   const { storeNames, sectionNames } = useMemo(() => {
@@ -43,22 +63,17 @@ export default function HomePage() {
 
   // Active filter results
   const filteredProducts = useMemo(() => {
-    if (!offersData) return [];
+    if (allProductsFlattened.length === 0) return [];
 
-    let results: { product: Product; storeName: string }[] = [];
+    let results = allProductsFlattened;
 
-    offersData.stores.forEach((store) => {
-      if (selectedStores.size > 0 && !selectedStores.has(store.name)) return;
+    if (selectedStores.size > 0) {
+      results = results.filter(item => selectedStores.has(item.storeName));
+    }
 
-      store.sections.forEach((section) => {
-        if (selectedSections.size > 0 && !selectedSections.has(section.name))
-          return;
-
-        section.products.forEach((product) => {
-          results.push({ product, storeName: store.name });
-        });
-      });
-    });
+    if (selectedSections.size > 0) {
+      results = results.filter(item => selectedSections.has(item.sectionName));
+    }
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -70,7 +85,7 @@ export default function HomePage() {
     }
 
     return results;
-  }, [offersData, searchQuery, selectedStores, selectedSections]);
+  }, [allProductsFlattened, searchQuery, selectedStores, selectedSections]);
 
   const handleProductTap = (product: Product) => {
     if (product.id) {
@@ -78,19 +93,27 @@ export default function HomePage() {
     }
   };
 
-  const toggleStore = (store: string) => {
-    const newSet = new Set(selectedStores);
-    if (newSet.has(store)) newSet.delete(store);
-    else newSet.add(store);
-    setSelectedStores(newSet);
-  };
+  const toggleStore = useCallback((store: string) => {
+    setSelectedStores((prev) => {
+      const next = new Set(prev);
+      if (next.has(store)) next.delete(store);
+      else next.add(store);
+      return next;
+    });
+  }, []);
 
-  const toggleSection = (section: string) => {
-    const newSet = new Set(selectedSections);
-    if (newSet.has(section)) newSet.delete(section);
-    else newSet.add(section);
-    setSelectedSections(newSet);
-  };
+  const toggleSection = useCallback((section: string) => {
+    setSelectedSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(section)) next.delete(section);
+      else next.add(section);
+      return next;
+    });
+  }, []);
+
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, []);
 
   if (loading) {
     return (
@@ -140,24 +163,7 @@ export default function HomePage() {
         {/* Responsive Search Interaction */}
         {isDesktop ? (
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3 rounded-2xl bg-surface-container-low px-5 py-4 transition-colors border-b-2 border-transparent focus-within:border-primary ghost-border">
-              <Search className="text-secondary" size={24} />
-              <input
-                type="text"
-                placeholder="Caută produse..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent outline-none placeholder:text-secondary text-on-surface font-medium text-lg"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="text-secondary hover:text-on-surface transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              )}
-            </div>
+            <SearchInput onSearch={handleSearch} />
 
             {/* Desktop Filters (only visible when typing or filtering) */}
             {isFiltering && (
@@ -236,10 +242,16 @@ export default function HomePage() {
       ) : (
         <div className="flex flex-col gap-10">
           {offersData?.stores.map((store) => {
-            // Flatten all products from all sections to get a preview of ~6 products
-            const previewProducts = store.sections
-              .flatMap((s) => s.products)
-              .slice(0, maxProductsPreview);
+            // Pre-calculate preview for Home Screen
+            const previewProducts: Product[] = [];
+            for (const section of store.sections) {
+              for (const product of section.products) {
+                if (previewProducts.length < maxProductsPreview) {
+                  previewProducts.push(product);
+                } else break;
+              }
+              if (previewProducts.length >= maxProductsPreview) break;
+            }
 
             return (
               <StoreSectionCard

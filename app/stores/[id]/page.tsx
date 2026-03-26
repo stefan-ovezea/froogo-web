@@ -8,6 +8,7 @@ import { StoreLogo } from "@/components/store-logo";
 import { ProductCard } from "@/components/product-card";
 import { FilterChips } from "@/components/ui/filter-chips";
 import { Product } from "@/types/product";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function StoreDetailPage() {
   const params = useParams();
@@ -18,6 +19,7 @@ export default function StoreDetailPage() {
   const storeName = decodeURIComponent(params.id as string);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [selectedSections, setSelectedSections] = useState<Set<string>>(
     new Set(),
   );
@@ -30,42 +32,48 @@ export default function StoreDetailPage() {
     return store?.sections.map((s) => s.name) || [];
   }, [store]);
 
-  const filteredProducts = useMemo(() => {
+  // Flatten products ONCE when store changes, not on every keystroke
+  const allStoreProducts = useMemo(() => {
     if (!store) return [];
-
-    let allProducts = store.sections.flatMap((section) =>
+    return store.sections.flatMap((section) =>
       section.products.map((product) => ({
         ...product,
         sectionName: section.name,
       })),
     );
+  }, [store]);
+
+  const filteredProducts = useMemo(() => {
+    if (allStoreProducts.length === 0) return [];
+
+    let results = [...allStoreProducts];
 
     // Filter by selected sections
     if (selectedSections.size > 0) {
-      allProducts = allProducts.filter((p) =>
+      results = results.filter((p) =>
         selectedSections.has(p.sectionName),
       );
     }
 
-    // Filter by search query
-    if (searchQuery.trim().length > 0) {
-      const query = searchQuery.toLowerCase();
-      allProducts = allProducts.filter(
+    // Filter by debounced search query
+    if (debouncedSearchQuery.trim().length > 0) {
+      const query = debouncedSearchQuery.toLowerCase();
+      results = results.filter(
         (p) =>
-          p.title.toLowerCase().includes(query) ||
-          p.subtitle.toLowerCase().includes(query),
+          p.title?.toLowerCase().includes(query) ||
+          p.subtitle?.toLowerCase().includes(query),
       );
     }
 
-    // Sort by discount percent by default
-    return allProducts.sort((a, b) => {
+    // Sort by discount percent
+    return results.sort((a, b) => {
       const aDiscount =
         a.oldPrice && a.oldPrice > 0 ? (a.oldPrice - a.price) / a.oldPrice : 0;
       const bDiscount =
         b.oldPrice && b.oldPrice > 0 ? (b.oldPrice - b.price) / b.oldPrice : 0;
-      return bDiscount - aDiscount; // Descending
+      return bDiscount - aDiscount;
     });
-  }, [store, selectedSections, searchQuery]);
+  }, [allStoreProducts, selectedSections, debouncedSearchQuery]);
 
   const toggleSection = (section: string) => {
     const newSet = new Set(selectedSections);
