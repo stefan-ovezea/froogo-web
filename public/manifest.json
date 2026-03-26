@@ -4,8 +4,8 @@
   "description": "Cele mai bune oferte la un click distanță",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#1c64f2",
+  "background_color": "#F8F9FA",
+  "theme_color": "#F8F9FA",
   "icons": [
     {
       "src": "/icon-192x192.png",

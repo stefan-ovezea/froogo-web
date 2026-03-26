@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope, Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
@@ -31,8 +31,11 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport = {
-  themeColor: "#1c64f2",
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F8F9FA" },
+    { media: "(prefers-color-scheme: dark)", color: "#111412" },
+  ],
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
